@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PomodoHabit: Pomodoro Timer + Habit Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>PomodoHabit</h1>
+      <p>Pomodoro Timer + Habit Tracker</p>
+    </header>
+
+    <main>
+      <!-- Timer Section -->
+      <section id="timer-section">
+        <h2>Pomodoro Timer</h2>
+        <div class="session-type" id="session-type">Work Session</div>
+        <div id="timer-display">25:00</div>
+        <div class="timer-controls">
+          <button id="start-btn">Start</button>
+          <button id="pause-btn">Pause</button>
+          <button id="reset-btn">Reset</button>
+        </div>
+        <div class="customize-timer">
+          <label>
+            Work Duration (min):
+            <input type="number" id="work-duration" value="25" min="1" />
+          </label>
+          <label>
+            Break Duration (min):
+            <input type="number" id="break-duration" value="5" min="1" />
+          </label>
+          <button id="set-timer-btn">Set Timer</button>
+        </div>
+      </section>
+
+      <!-- Habit Tracker Section -->
+      <section id="habit-section">
+        <h2>Habit Tracker</h2>
+        <form id="habit-form">
+          <input type="text" id="habit-input" placeholder="Enter habit (e.g., Exercise)" required />
+          <button type="submit">Add Habit</button>
+        </form>
+        <div id="active-habit">
+          <label for="habit-select">Track with Timer:</label>
+          <select id="habit-select">
+            <option value="">-- Select Habit --</option>
+          </select>
+        </div>
+        <ul id="habit-list">
+          <!-- Habit items will be dynamically inserted here -->
+        </ul>
+      </section>
+
+      <!-- Gamification / Achievements Section -->
+      <section id="gamification-section">
+        <h2>Achievements & Rewards</h2>
+        <div id="points">Points: 0</div>
+        <div id="level">Level: 1</div>
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <ul id="achievements-list">
+          <!-- Achievements will be dynamically inserted here -->
+        </ul>
+      </section>
+    </main>
+
+    <!-- Modal for editing habits -->
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Edit Habit</h3>
+        <form id="edit-habit-form">
+          <input type="hidden" id="edit-habit-index">
+          <div class="form-group">
+            <label for="edit-habit-name">Habit Name:</label>
+            <input type="text" id="edit-habit-name" required>
+          </div>
+          <div class="form-buttons">
+            <button type="submit" class="save-btn">Save Changes</button>
+            <button type="button" id="delete-habit-btn" class="delete-btn">Delete Habit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confetti canvas for celebrations -->
+    <canvas id="confetti-canvas"></canvas>
+  </div>
+
+  <!-- Link to external JavaScript files -->
+  <script src="timer.js"></script>
+  <script src="habits.js"></script>
+  <script src="gamification.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
