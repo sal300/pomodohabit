@@ -476,3 +476,19 @@ input:focus, select:focus {
     flex-direction: column;
   }
 }
+
+/* Footer styles */
+.app-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-medium);
+  color: var(--dark-color);
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.app-footer p {
+  margin: 0;
+  padding-bottom: 15px;
+}
