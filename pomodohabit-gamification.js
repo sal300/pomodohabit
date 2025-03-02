@@ -1,5 +1,6 @@
 /**
  * gamification.js - Controls the achievements and rewards system
+ * Updated with collapsible achievements list
  */
 
 // Gamification state
@@ -16,6 +17,8 @@ const gamificationElements = {
   levelDisplay: document.getElementById('level'),
   progressBar: document.getElementById('progress-bar'),
   achievementsList: document.getElementById('achievements-list'),
+  achievementsCount: document.getElementById('achievements-count'),
+  viewMoreBtn: document.getElementById('view-more-btn'),
   confettiCanvas: document.getElementById('confetti-canvas')
 };
 
@@ -102,6 +105,11 @@ function addAchievement(text, type = 'general') {
   // Add to UI with animation
   renderAchievement(achievement);
   
+  // Update achievements count
+  if (gamificationElements.achievementsCount) {
+    gamificationElements.achievementsCount.textContent = `(${GamificationState.achievements.length})`;
+  }
+  
   // Save state
   saveGamificationState();
 }
@@ -161,7 +169,23 @@ function renderAchievements() {
     emptyMessage.textContent = 'Complete tasks to earn achievements!';
     emptyMessage.className = 'empty-message';
     gamificationElements.achievementsList.appendChild(emptyMessage);
+    
+    // Hide the view more button if no achievements
+    if (gamificationElements.viewMoreBtn) {
+      gamificationElements.viewMoreBtn.style.display = 'none';
+    }
+    
     return;
+  }
+  
+  // Show the view more button
+  if (gamificationElements.viewMoreBtn) {
+    gamificationElements.viewMoreBtn.style.display = 'block';
+  }
+  
+  // Update achievement count
+  if (gamificationElements.achievementsCount) {
+    gamificationElements.achievementsCount.textContent = `(${GamificationState.achievements.length})`;
   }
   
   // Sort achievements by date (newest first)
@@ -269,6 +293,11 @@ function loadGamificationState() {
       // Update UI
       gamificationElements.pointsDisplay.textContent = `Points: ${GamificationState.points}`;
       gamificationElements.levelDisplay.textContent = `Level: ${GamificationState.level}`;
+      
+      // Update achievements count
+      if (gamificationElements.achievementsCount) {
+        gamificationElements.achievementsCount.textContent = `(${GamificationState.achievements.length})`;
+      }
       
       // Update progress bar
       const nextLevel = GamificationState.level + 1;
