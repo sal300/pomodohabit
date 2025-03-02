@@ -41,6 +41,12 @@ function createHabit(name) {
  * Renders the habit list in the UI using a card-based design
  */
 function renderHabits() {
+  // Make sure the habit list element exists
+  if (!habitElements.list) {
+    console.warn('Habit list element not found');
+    return;
+  }
+  
   habitElements.list.innerHTML = '';
   
   if (habits.length === 0) {
@@ -244,68 +250,116 @@ function loadHabits() {
  * Adds sample habits for first-time users
  */
 function addSampleHabits() {
+  console.log('Adding sample habits');
   habits = [
     createHabit('Exercise'),
     createHabit('Reading'),
     createHabit('Meditation')
   ];
+  
+  // Log a session for each sample habit
+  habits.forEach((habit, index) => {
+    // Simulate past completions for the sample habits
+    const now = new Date();
+    
+    // For Exercise, simulate 3-day streak
+    if (index === 0) {
+      habit.streak = 3;
+      habit.longestStreak = 3;
+      habit.sessions = 3;
+      habit.lastCompleted = now;
+      
+      // Add achievement for the streak
+      if (typeof addAchievement === 'function') {
+        addAchievement(`3-Day Streak on ${habit.name}!`, 'streak');
+      }
+    }
+    
+    // For Reading, simulate 1 session
+    if (index === 1) {
+      habit.streak = 1;
+      habit.longestStreak = 1;
+      habit.sessions = 1;
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      habit.lastCompleted = yesterday;
+    }
+    
+    // For Meditation, no sessions yet
+  });
+  
   saveHabits();
+  
+  // Add first habit achievement if the function exists
+  if (typeof addAchievement === 'function') {
+    addAchievement('First habits created! Your journey begins!', 'milestone');
+  }
 }
 
 // Event Listeners
-habitElements.form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const habitName = habitElements.input.value.trim();
-  
-  if (habitName) {
-    const habit = createHabit(habitName);
-    habits.push(habit);
-    saveHabits();
-    renderHabits();
-    habitElements.input.value = '';
+if (habitElements.form) {
+  habitElements.form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const habitName = habitElements.input.value.trim();
     
-    // First habit achievement
-    if (habits.length === 1) {
-      addAchievement('First habit created! Your journey begins!', 'milestone');
+    if (habitName) {
+      const habit = createHabit(habitName);
+      habits.push(habit);
+      saveHabits();
+      renderHabits();
+      habitElements.input.value = '';
+      
+      // First habit achievement
+      if (habits.length === 1) {
+        addAchievement('First habit created! Your journey begins!', 'milestone');
+      }
     }
-  }
-});
+  });
+}
 
 // Event delegation for habit list buttons (using revised layout)
-habitElements.list.addEventListener('click', (e) => {
-  if (e.target.classList.contains('log-btn')) {
-    const index = parseInt(e.target.dataset.index, 10);
-    incrementHabit(index);
-  } else if (e.target.classList.contains('edit-btn')) {
-    const index = parseInt(e.target.dataset.index, 10);
-    showEditModal(index);
-  }
-});
+if (habitElements.list) {
+  habitElements.list.addEventListener('click', (e) => {
+    if (e.target.classList.contains('log-btn')) {
+      const index = parseInt(e.target.dataset.index, 10);
+      incrementHabit(index);
+    } else if (e.target.classList.contains('edit-btn')) {
+      const index = parseInt(e.target.dataset.index, 10);
+      showEditModal(index);
+    }
+  });
+}
 
 // Edit form submission
-habitElements.editForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const index = parseInt(habitElements.editIndexInput.value, 10);
-  const newName = habitElements.editNameInput.value.trim();
-  
-  if (newName && index >= 0 && index < habits.length) {
-    habits[index].name = newName;
-    saveHabits();
-    renderHabits();
-    closeEditModal();
-  }
-});
+if (habitElements.editForm) {
+  habitElements.editForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const index = parseInt(habitElements.editIndexInput.value, 10);
+    const newName = habitElements.editNameInput.value.trim();
+    
+    if (newName && index >= 0 && index < habits.length) {
+      habits[index].name = newName;
+      saveHabits();
+      renderHabits();
+      closeEditModal();
+    }
+  });
+}
 
 // Delete button
-habitElements.deleteButton.addEventListener('click', () => {
-  const index = parseInt(habitElements.editIndexInput.value, 10);
-  deleteHabit(index);
-});
+if (habitElements.deleteButton) {
+  habitElements.deleteButton.addEventListener('click', () => {
+    const index = parseInt(habitElements.editIndexInput.value, 10);
+    deleteHabit(index);
+  });
+}
 
 // Close button and click outside modal
-habitElements.closeButton.addEventListener('click', closeEditModal);
-window.addEventListener('click', (e) => {
-  if (e.target === habitElements.editModal) {
-    closeEditModal();
-  }
-});
+if (habitElements.closeButton) {
+  habitElements.closeButton.addEventListener('click', closeEditModal);
+  window.addEventListener('click', (e) => {
+    if (e.target === habitElements.editModal) {
+      closeEditModal();
+    }
+  });
+}
