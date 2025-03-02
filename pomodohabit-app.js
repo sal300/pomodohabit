@@ -4,8 +4,11 @@
 
 // Initialize the application when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  initializeApp();
+  // First, set up tab navigation structure
   setupTabNavigation();
+  
+  // Then initialize the app data and components
+  initializeApp();
 });
 
 /**
@@ -47,6 +50,9 @@ function setupTabNavigation() {
       const tabName = button.getAttribute('data-tab');
       setActiveTab(tabName);
       
+      // When switching tabs, ensure content is refreshed
+      refreshTabContent(tabName);
+      
       // Save active tab to localStorage
       localStorage.setItem('activeTab', tabName);
     });
@@ -70,6 +76,42 @@ function setupTabNavigation() {
         content.classList.remove('active');
       }
     });
+    
+    // Refresh the content of the active tab
+    refreshTabContent(tabName);
+  }
+  
+  // Initial loading of tab content
+  refreshTabContent(savedTab);
+}
+
+/**
+ * Refreshes the content of a specific tab
+ * @param {string} tabName - Name of the tab to refresh
+ */
+function refreshTabContent(tabName) {
+  // Refresh specific tab content
+  switch (tabName) {
+    case 'habits':
+      // Force re-render of habits
+      if (typeof renderHabits === 'function') {
+        renderHabits();
+      }
+      break;
+      
+    case 'achievements':
+      // Force re-render of achievements
+      if (typeof renderAchievements === 'function') {
+        renderAchievements();
+      }
+      break;
+      
+    case 'timer':
+      // Update the habit dropdown in the timer section
+      if (typeof updateHabitDropdown === 'function') {
+        updateHabitDropdown();
+      }
+      break;
   }
 }
 
@@ -107,13 +149,6 @@ function setupServiceWorker() {
     window.addEventListener('load', () => {
       // Note: In a real application, you would include a service-worker.js file
       // and register it here for offline capabilities
-      // navigator.serviceWorker.register('/service-worker.js')
-      //   .then(registration => {
-      //     console.log('ServiceWorker registration successful');
-      //   })
-      //   .catch(error => {
-      //     console.log('ServiceWorker registration failed:', error);
-      //   });
     });
   }
 }
