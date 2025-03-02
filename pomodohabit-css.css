@@ -1,4 +1,4 @@
-/* PomodoHabit App Styles */
+/* PomodoHabit App Styles - Improved Version */
 
 /* Root Variables for theme consistency */
 :root {
@@ -13,6 +13,7 @@
   --danger-color: #e74c3c;
   --gray-light: #f9f9f9;
   --gray-medium: #ddd;
+  --gray-dark: #95a5a6;
   --border-radius: 8px;
   --box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   --transition: all 0.3s ease;
@@ -74,6 +75,52 @@ h2 {
   margin-bottom: 20px;
 }
 
+h3 {
+  margin: 15px 0;
+  color: var(--dark-color);
+  font-size: 1.2rem;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  border-bottom: 2px solid var(--gray-light);
+  padding-bottom: 5px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-dark);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  transition: var(--transition);
+}
+
+.tab-btn:hover {
+  color: var(--primary-color);
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  border-bottom: 3px solid var(--primary-color);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
 /* Button & Form Elements */
 button {
   cursor: pointer;
@@ -106,11 +153,19 @@ input:focus, select:focus {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-/* Timer Styles */
+/* Timer Styles - Improved spacing */
+.timer-container {
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 25px;
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+}
+
 #timer-display {
   font-size: 4rem;
   text-align: center;
-  margin: 20px 0;
+  margin: 15px 0;
   font-weight: bold;
   color: var(--primary-color);
   text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
@@ -119,7 +174,7 @@ input:focus, select:focus {
 .session-type {
   text-align: center;
   font-size: 1.2rem;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   font-weight: bold;
   transition: var(--transition);
 }
@@ -136,7 +191,7 @@ input:focus, select:focus {
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 25px;
+  margin: 10px 0;
 }
 
 .timer-controls button {
@@ -158,6 +213,29 @@ input:focus, select:focus {
   background-color: var(--secondary-color);
 }
 
+/* Settings divider for visual separation */
+.settings-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 25px 0;
+}
+
+.settings-divider::before,
+.settings-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.settings-divider span {
+  padding: 0 10px;
+  font-size: 0.9rem;
+  color: var(--gray-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .customize-timer {
   display: flex;
   flex-wrap: wrap;
@@ -167,6 +245,7 @@ input:focus, select:focus {
   background-color: var(--gray-light);
   padding: 15px;
   border-radius: var(--border-radius);
+  margin-bottom: 20px;
 }
 
 .customize-timer label {
@@ -185,10 +264,37 @@ input:focus, select:focus {
   color: white;
 }
 
-/* Habit Tracker Styles */
+/* Track With Timer - New component */
+.track-with-timer {
+  border-top: 1px solid var(--gray-light);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.habit-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#habit-select {
+  width: 100%;
+  padding: 12px;
+}
+
+.helper-text {
+  font-size: 0.85rem;
+  color: var(--gray-dark);
+  font-style: italic;
+}
+
+/* Habit Tracker Styles - Card-based design */
+.habit-actions-container {
+  margin-bottom: 20px;
+}
+
 #habit-form {
   display: flex;
-  margin-bottom: 20px;
   gap: 10px;
 }
 
@@ -202,60 +308,75 @@ input:focus, select:focus {
   color: white;
 }
 
-#active-habit {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 10px;
+.habits-container {
+  margin-top: 20px;
+}
+
+.habits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+/* Habit card styling */
+.habit-card {
   background-color: var(--gray-light);
   border-radius: var(--border-radius);
-}
-
-#habit-select {
-  flex: 1;
-}
-
-#habit-list {
-  list-style: none;
-}
-
-#habit-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 10px 0;
   padding: 15px;
-  border-radius: var(--border-radius);
-  background-color: var(--gray-light);
   transition: var(--transition);
+  display: flex;
+  flex-direction: column;
 }
 
-#habit-list li:hover {
-  background-color: #f0f0f0;
+.habit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.habit-info {
-  flex: 1;
+.habit-card-header {
+  margin-bottom: 10px;
 }
 
 .habit-name {
   font-weight: bold;
+  font-size: 1.1rem;
   margin-bottom: 5px;
 }
 
 .habit-stats {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: var(--gray-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.habit-actions {
+.habit-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.habit-stat-icon {
+  font-size: 0.9rem;
+}
+
+.habit-last-completed {
+  margin: 10px 0;
+  font-size: 0.9rem;
+  color: var(--gray-dark);
+  font-style: italic;
+}
+
+.habit-card-actions {
   display: flex;
   gap: 8px;
+  margin-top: auto;
 }
 
-.habit-actions button {
-  padding: 8px 12px;
+.habit-card-actions button {
+  flex: 1;
+  padding: 8px;
   font-size: 0.9rem;
   color: white;
 }
@@ -269,11 +390,15 @@ input:focus, select:focus {
 }
 
 /* Gamification Styles */
+.stats-container {
+  margin-bottom: 25px;
+}
+
 #points, #level {
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 10px;
-  padding: 10px;
+  padding: 15px;
   border-radius: var(--border-radius);
   text-align: center;
   transition: var(--transition);
@@ -287,13 +412,14 @@ input:focus, select:focus {
 #level {
   background-color: var(--secondary-color);
   color: white;
+  margin-bottom: 15px;
 }
 
 .progress-container {
   height: 20px;
   background-color: var(--gray-light);
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   overflow: hidden;
 }
 
@@ -304,11 +430,34 @@ input:focus, select:focus {
   transition: width 0.5s ease;
 }
 
-#achievements-list {
-  list-style: none;
+.achievements-container {
+  position: relative;
 }
 
-#achievements-list li {
+.achievements-container h3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#achievements-count {
+  font-size: 0.9rem;
+  color: var(--gray-dark);
+  font-weight: normal;
+}
+
+.achievements-list {
+  list-style: none;
+  max-height: 500px;
+  overflow-y: auto;
+  transition: max-height 0.5s ease;
+}
+
+.achievements-list.collapsed {
+  max-height: 300px;
+}
+
+.achievements-list li {
   margin: 10px 0;
   padding: 15px;
   background-color: var(--gray-light);
@@ -316,6 +465,38 @@ input:focus, select:focus {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   animation: slideIn 0.5s ease;
   border-left: 4px solid var(--primary-color);
+  display: flex;
+  align-items: center;
+}
+
+.achievement-icon {
+  font-size: 1.5rem;
+  margin-right: 15px;
+}
+
+.achievement-text {
+  flex: 1;
+}
+
+.achievement-date {
+  font-size: 0.8rem;
+  color: var(--gray-dark);
+}
+
+.view-more-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  background-color: var(--gray-light);
+  color: var(--dark-color);
+  text-align: center;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.view-more-btn:hover {
+  background-color: var(--gray-medium);
 }
 
 /* Modal Styles */
@@ -392,6 +573,22 @@ input:focus, select:focus {
   pointer-events: none;
 }
 
+/* Footer styles */
+.app-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-medium);
+  color: var(--dark-color);
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.app-footer p {
+  margin: 0;
+  padding-bottom: 15px;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -424,14 +621,29 @@ input:focus, select:focus {
   animation: pulse 0.5s ease;
 }
 
-/* Responsive Design */
+/* Responsive Design - Improved for mobile */
 @media (max-width: 768px) {
+  .tab-navigation {
+    flex-wrap: wrap;
+  }
+  
+  .tab-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
   #timer-display {
     font-size: 3rem;
   }
   
   .timer-controls {
     flex-wrap: wrap;
+  }
+  
+  .timer-controls button {
+    padding: 10px 15px; /* Smaller buttons on mobile */
+    min-width: auto;
+    flex: 1;
   }
   
   .customize-timer {
@@ -446,6 +658,10 @@ input:focus, select:focus {
   
   #habit-form {
     flex-direction: column;
+  }
+  
+  .habits-grid {
+    grid-template-columns: 1fr;
   }
   
   .form-buttons {
@@ -472,23 +688,11 @@ input:focus, select:focus {
     font-size: 2.5rem;
   }
   
-  .habit-actions {
+  .timer-container {
+    padding: 10px;
+  }
+  
+  .habit-card-actions {
     flex-direction: column;
   }
-}
-
-/* Footer styles */
-.app-footer {
-  text-align: center;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid var(--gray-medium);
-  color: var(--dark-color);
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.app-footer p {
-  margin: 0;
-  padding-bottom: 15px;
 }
