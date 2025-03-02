@@ -1,5 +1,6 @@
 /**
  * habits.js - Controls the habit tracking functionality
+ * Updated with card-based UI for better mobile experience
  */
 
 // Habits collection
@@ -37,7 +38,7 @@ function createHabit(name) {
 }
 
 /**
- * Renders the habit list in the UI
+ * Renders the habit list in the UI using a card-based design
  */
 function renderHabits() {
   habitElements.list.innerHTML = '';
@@ -51,7 +52,9 @@ function renderHabits() {
   }
   
   habits.forEach((habit, index) => {
-    const li = document.createElement('li');
+    // Create a card for each habit
+    const card = document.createElement('div');
+    card.className = 'habit-card';
     
     // Calculate days since last completion
     let daysStreak = 'No activity yet';
@@ -70,25 +73,33 @@ function renderHabits() {
       }
     }
     
-    li.innerHTML = `
-      <div class="habit-info">
+    // Build card content
+    card.innerHTML = `
+      <div class="habit-card-header">
         <div class="habit-name">${habit.name}</div>
-        <div class="habit-stats">
-          Current streak: ${habit.streak} days
-          <span class="separator">•</span>
-          Best streak: ${habit.longestStreak} days
-          <span class="separator">•</span>
-          Total sessions: ${habit.sessions}
-        </div>
-        <div class="habit-last-completed">${daysStreak}</div>
       </div>
-      <div class="habit-actions">
+      <div class="habit-stats">
+        <div class="habit-stat">
+          <span class="habit-stat-icon">🔥</span>
+          <span>Current streak: ${habit.streak} days</span>
+        </div>
+        <div class="habit-stat">
+          <span class="habit-stat-icon">🏆</span>
+          <span>Best streak: ${habit.longestStreak} days</span>
+        </div>
+        <div class="habit-stat">
+          <span class="habit-stat-icon">📊</span>
+          <span>Total sessions: ${habit.sessions}</span>
+        </div>
+      </div>
+      <div class="habit-last-completed">${daysStreak}</div>
+      <div class="habit-card-actions">
         <button class="log-btn" data-index="${index}">Log Session</button>
         <button class="edit-btn" data-index="${index}">Edit</button>
       </div>
     `;
     
-    habitElements.list.appendChild(li);
+    habitElements.list.appendChild(card);
   });
   
   // Update the habit dropdown in the timer section
@@ -260,7 +271,7 @@ habitElements.form.addEventListener('submit', (e) => {
   }
 });
 
-// Event delegation for habit list buttons
+// Event delegation for habit list buttons (using revised layout)
 habitElements.list.addEventListener('click', (e) => {
   if (e.target.classList.contains('log-btn')) {
     const index = parseInt(e.target.dataset.index, 10);
