@@ -1,365 +1,293 @@
 /**
- * habits.js - Controls the habit tracking functionality
- * Updated with card-based UI for better mobile experience
+ * gamification.js - Controls the achievements and rewards system
+ * Updated with collapsible achievements list
  */
 
-// Habits collection
-let habits = [];
+// Gamification state
+const GamificationState = {
+  points: 0,
+  level: 1,
+  achievements: [],
+  pointsToNextLevel: 100
+};
 
 // DOM elements
-const habitElements = {
-  form: document.getElementById('habit-form'),
-  input: document.getElementById('habit-input'),
-  list: document.getElementById('habit-list'),
-  editModal: document.getElementById('edit-modal'),
-  editForm: document.getElementById('edit-habit-form'),
-  editNameInput: document.getElementById('edit-habit-name'),
-  editIndexInput: document.getElementById('edit-habit-index'),
-  deleteButton: document.getElementById('delete-habit-btn'),
-  closeButton: document.querySelector('.close')
+const gamificationElements = {
+  pointsDisplay: document.getElementById('points'),
+  levelDisplay: document.getElementById('level'),
+  progressBar: document.getElementById('progress-bar'),
+  achievementsList: document.getElementById('achievements-list'),
+  achievementsCount: document.getElementById('achievements-count'),
+  viewMoreBtn: document.getElementById('view-more-btn'),
+  confettiCanvas: document.getElementById('confetti-canvas')
 };
 
 /**
- * Creates a new habit object
- * @param {string} name - The name of the habit
- * @returns {Object} The new habit object
+ * Adds points to the user's score
+ * @param {number} points - Number of points to add
  */
-function createHabit(name) {
-  return {
-    id: Date.now().toString(), // Unique ID based on timestamp
-    name: name,
-    streak: 0,
-    sessions: 0,
-    longestStreak: 0,
-    created: new Date(),
-    lastCompleted: null,
-    history: []
+function addPoints(points) {
+  GamificationState.points += points;
+  
+  // Update points display with animation
+  if (gamificationElements.pointsDisplay) {
+    gamificationElements.pointsDisplay.textContent = `Points: ${GamificationState.points}`;
+    gamificationElements.pointsDisplay.classList.add('point-animation');
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+      gamificationElements.pointsDisplay.classList.remove('point-animation');
+    }, 500);
+  }
+  
+  // Check for level up
+  checkLevelUp();
+  
+  // Check for point-based achievements
+  checkPointAchievements();
+  
+  // Save state
+  saveGamificationState();
+}
+
+/**
+ * Checks if user has leveled up and updates UI accordingly
+ */
+function checkLevelUp() {
+  const nextLevel = GamificationState.level + 1;
+  const pointsRequired = nextLevel * 100; // Each level requires 100 more points
+  
+  // Update progress bar
+  if (gamificationElements.progressBar) {
+    const progressPercentage = (GamificationState.points / pointsRequired) * 100;
+    gamificationElements.progressBar.style.width = `${Math.min(100, progressPercentage)}%`;
+  }
+  
+  // Level up if enough points
+  if (GamificationState.points >= pointsRequired) {
+    GamificationState.level = nextLevel;
+    
+    if (gamificationElements.levelDisplay) {
+      gamificationElements.levelDisplay.textContent = `Level: ${GamificationState.level}`;
+    }
+    
+    // Add level up achievement
+    addAchievement(`Leveled up to Level ${GamificationState.level}!`, 'level-up');
+    
+    // Trigger confetti celebration
+    triggerConfetti();
+  }
+}
+
+/**
+ * Checks for achievements based on point milestones
+ */
+function checkPointAchievements() {
+  const pointMilestones = [50, 100, 250, 500, 1000, 2500];
+  
+  pointMilestones.forEach(milestone => {
+    if (GamificationState.points >= milestone && !hasAchievement(`${milestone} Points`)) {
+      addAchievement(`Achievement Unlocked: ${milestone} Points!`, 'points');
+    }
+  });
+}
+
+/**
+ * Adds a new achievement
+ * @param {string} text - Achievement text
+ * @param {string} type - Type of achievement (points, streak, milestone, etc.)
+ */
+function addAchievement(text, type = 'general') {
+  // Check for duplicates
+  if (hasAchievement(text)) {
+    return;
+  }
+  
+  // Create achievement object
+  const achievement = {
+    text: text,
+    type: type,
+    date: new Date(),
+    icon: getAchievementIcon(type)
   };
+  
+  // Add to achievements array
+  GamificationState.achievements.push(achievement);
+  
+  // Add to UI with animation
+  renderAchievement(achievement);
+  
+  // Update achievements count
+  if (gamificationElements.achievementsCount) {
+    gamificationElements.achievementsCount.textContent = `(${GamificationState.achievements.length})`;
+  }
+  
+  // Save state
+  saveGamificationState();
+  
+  // If this is a welcome achievement, add some starter achievements
+  if (text.includes('Welcome to PomodoHabit')) {
+    addStarterAchievements();
+  }
 }
 
 /**
- * Renders the habit list in the UI using a card-based design
+ * Adds some starter achievements for new users
  */
-function renderHabits() {
-  // Make sure the habit list element exists
-  if (!habitElements.list) {
-    console.warn('Habit list element not found');
+function addStarterAchievements() {
+  // Only add starter achievements if we have just one achievement (the welcome one)
+  if (GamificationState.achievements.length === 1) {
+    setTimeout(() => {
+      addAchievement('Setup complete! Ready to build habits!', 'milestone');
+      addAchievement('First timer session awaits!', 'general');
+      addPoints(25); // Give starting points
+    }, 500);
+  }
+}
+
+/**
+ * Gets icon for achievement type
+ * @param {string} type - Type of achievement
+ * @returns {string} - Icon character
+ */
+function getAchievementIcon(type) {
+  switch (type) {
+    case 'points':
+      return '🎯';
+    case 'streak':
+      return '🔥';
+    case 'level-up':
+      return '⭐';
+    case 'milestone':
+      return '🏆';
+    default:
+      return '🎉';
+  }
+}
+
+/**
+ * Renders a single achievement in the UI
+ * @param {Object} achievement - Achievement object
+ */
+function renderAchievement(achievement) {
+  if (!gamificationElements.achievementsList) {
     return;
   }
   
-  habitElements.list.innerHTML = '';
+  const li = document.createElement('li');
+  const date = new Date(achievement.date);
   
-  if (habits.length === 0) {
+  li.innerHTML = `
+    <span class="achievement-icon">${achievement.icon}</span>
+    <span class="achievement-text">${achievement.text}</span>
+    <span class="achievement-date">${date.toLocaleDateString()}</span>
+  `;
+  
+  // Add with animation
+  li.style.opacity = '0';
+  gamificationElements.achievementsList.prepend(li);
+  
+  setTimeout(() => {
+    li.style.transition = 'opacity 0.5s ease';
+    li.style.opacity = '1';
+  }, 10);
+}
+
+/**
+ * Renders all achievements in the UI
+ */
+function renderAchievements() {
+  if (!gamificationElements.achievementsList) {
+    console.warn('Achievements list element not found');
+    return;
+  }
+  
+  gamificationElements.achievementsList.innerHTML = '';
+  
+  if (GamificationState.achievements.length === 0) {
     const emptyMessage = document.createElement('p');
-    emptyMessage.textContent = 'No habits yet. Add one to get started!';
+    emptyMessage.textContent = 'Complete tasks to earn achievements!';
     emptyMessage.className = 'empty-message';
-    habitElements.list.appendChild(emptyMessage);
+    gamificationElements.achievementsList.appendChild(emptyMessage);
+    
+    // Hide the view more button if no achievements
+    if (gamificationElements.viewMoreBtn) {
+      gamificationElements.viewMoreBtn.style.display = 'none';
+    }
+    
     return;
   }
   
-  habits.forEach((habit, index) => {
-    // Create a card for each habit
-    const card = document.createElement('div');
-    card.className = 'habit-card';
-    
-    // Calculate days since last completion
-    let daysStreak = 'No activity yet';
-    if (habit.lastCompleted) {
-      const lastDate = new Date(habit.lastCompleted);
-      const now = new Date();
-      const timeDiff = now - lastDate;
-      const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff === 0) {
-        daysStreak = 'Completed today';
-      } else if (daysDiff === 1) {
-        daysStreak = 'Last completed yesterday';
-      } else {
-        daysStreak = `Last completed ${daysDiff} days ago`;
-      }
-    }
-    
-    // Build card content
-    card.innerHTML = `
-      <div class="habit-card-header">
-        <div class="habit-name">${habit.name}</div>
-      </div>
-      <div class="habit-stats">
-        <div class="habit-stat">
-          <span class="habit-stat-icon">🔥</span>
-          <span>Current streak: ${habit.streak} days</span>
-        </div>
-        <div class="habit-stat">
-          <span class="habit-stat-icon">🏆</span>
-          <span>Best streak: ${habit.longestStreak} days</span>
-        </div>
-        <div class="habit-stat">
-          <span class="habit-stat-icon">📊</span>
-          <span>Total sessions: ${habit.sessions}</span>
-        </div>
-      </div>
-      <div class="habit-last-completed">${daysStreak}</div>
-      <div class="habit-card-actions">
-        <button class="log-btn" data-index="${index}">Log Session</button>
-        <button class="edit-btn" data-index="${index}">Edit</button>
-      </div>
-    `;
-    
-    habitElements.list.appendChild(card);
-  });
-  
-  // Update the habit dropdown in the timer section
-  if (typeof updateHabitDropdown === 'function') {
-    updateHabitDropdown();
+  // Show the view more button
+  if (gamificationElements.viewMoreBtn) {
+    gamificationElements.viewMoreBtn.style.display = 'block';
   }
+  
+  // Update achievement count
+  if (gamificationElements.achievementsCount) {
+    gamificationElements.achievementsCount.textContent = `(${GamificationState.achievements.length})`;
+  }
+  
+  // Sort achievements by date (newest first)
+  const sortedAchievements = [...GamificationState.achievements]
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  // Render each achievement
+  sortedAchievements.forEach(achievement => {
+    renderAchievement(achievement);
+  });
 }
 
 /**
- * Increments the habit completion count and streak
- * @param {number} index - Index of the habit to increment
+ * Checks if a specific achievement already exists
+ * @param {string} text - Achievement text to check for
+ * @returns {boolean} - True if achievement exists
  */
-function incrementHabit(index) {
-  if (index >= 0 && index < habits.length) {
-    const habit = habits[index];
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    // Check if already completed today
-    let alreadyCompletedToday = false;
-    if (habit.lastCompleted) {
-      const lastDate = new Date(habit.lastCompleted);
-      const lastDay = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
-      alreadyCompletedToday = today.getTime() === lastDay.getTime();
-    }
-    
-    // Only increment streak if not already completed today
-    if (!alreadyCompletedToday) {
-      // Check if the streak is broken (more than 1 day since last completion)
-      if (habit.lastCompleted) {
-        const lastDate = new Date(habit.lastCompleted);
-        const dayDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-        
-        // Reset streak if more than 1 day has passed
-        if (dayDiff > 1) {
-          habit.streak = 1;
-        } else {
-          habit.streak++;
-        }
-      } else {
-        habit.streak = 1;
-      }
-    }
-    
-    // Always increment sessions
-    habit.sessions++;
-    
-    // Update last completed date
-    habit.lastCompleted = now;
-    
-    // Add to history
-    habit.history.push({
-      date: now,
-      action: 'completed'
+function hasAchievement(text) {
+  return GamificationState.achievements.some(a => a.text.includes(text));
+}
+
+/**
+ * Creates a confetti celebration effect
+ */
+function triggerConfetti() {
+  // Simple confetti effect using canvas
+  const canvas = gamificationElements.confettiCanvas;
+  if (!canvas) {
+    console.warn('Confetti canvas not found');
+    return;
+  }
+  
+  const ctx = canvas.getContext('2d');
+  
+  // Set canvas size
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  // Confetti pieces
+  const confetti = [];
+  const confettiCount = 150;
+  const gravity = 0.5;
+  const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+  
+  // Create confetti pieces
+  for (let i = 0; i < confettiCount; i++) {
+    confetti.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      size: Math.random() * 10 + 5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 2 * Math.PI,
+      speed: Math.random() * 3 + 2,
+      rotationSpeed: Math.random() * 0.2 - 0.1,
+      horizontalSpeed: Math.random() * 5 - 2.5
     });
-    
-    // Update longest streak if current streak is higher
-    if (habit.streak > habit.longestStreak) {
-      habit.longestStreak = habit.streak;
-    }
-    
-    // Check for streak achievements
-    if (habit.streak === 3) {
-      addAchievement(`3-Day Streak on ${habit.name}!`, 'streak');
-    } else if (habit.streak === 7) {
-      addAchievement(`1-Week Streak on ${habit.name}!`, 'streak');
-      triggerConfetti();
-    } else if (habit.streak === 30) {
-      addAchievement(`Amazing! 30-Day Streak on ${habit.name}!`, 'streak');
-      triggerConfetti();
-    }
-    
-    // Award points based on streak
-    const streakBonus = Math.min(5, Math.floor(habit.streak / 5));
-    addPoints(5 + streakBonus);
-    
-    saveHabits();
-    renderHabits();
   }
-}
-
-/**
- * Shows the edit modal for a habit
- * @param {number} index - Index of the habit to edit
- */
-function showEditModal(index) {
-  const habit = habits[index];
-  habitElements.editNameInput.value = habit.name;
-  habitElements.editIndexInput.value = index;
-  habitElements.editModal.style.display = 'block';
-}
-
-/**
- * Closes the edit modal
- */
-function closeEditModal() {
-  habitElements.editModal.style.display = 'none';
-}
-
-/**
- * Deletes a habit
- * @param {number} index - Index of the habit to delete
- */
-function deleteHabit(index) {
-  if (confirm('Are you sure you want to delete this habit?')) {
-    habits.splice(index, 1);
-    saveHabits();
-    renderHabits();
-    closeEditModal();
-  }
-}
-
-/**
- * Saves habits to localStorage
- */
-function saveHabits() {
-  localStorage.setItem('habits', JSON.stringify(habits));
-}
-
-/**
- * Loads habits from localStorage
- */
-function loadHabits() {
-  try {
-    const savedHabits = JSON.parse(localStorage.getItem('habits'));
-    if (savedHabits && Array.isArray(savedHabits) && savedHabits.length > 0) {
-      habits = savedHabits;
-    } else {
-      // Add sample habits if no habits exist
-      addSampleHabits();
-    }
-    renderHabits();
-  } catch (error) {
-    console.warn('Error loading habits:', error);
-    // Add sample habits if there's an error
-    addSampleHabits();
-    renderHabits();
-  }
-}
-
-/**
- * Adds sample habits for first-time users
- */
-function addSampleHabits() {
-  console.log('Adding sample habits');
-  habits = [
-    createHabit('Exercise'),
-    createHabit('Reading'),
-    createHabit('Meditation')
-  ];
   
-  // Log a session for each sample habit
-  habits.forEach((habit, index) => {
-    // Simulate past completions for the sample habits
-    const now = new Date();
+  // Animation function
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // For Exercise, simulate 3-day streak
-    if (index === 0) {
-      habit.streak = 3;
-      habit.longestStreak = 3;
-      habit.sessions = 3;
-      habit.lastCompleted = now;
-      
-      // Add achievement for the streak
-      if (typeof addAchievement === 'function') {
-        addAchievement(`3-Day Streak on ${habit.name}!`, 'streak');
-      }
-    }
+    let stillFalling = false;
     
-    // For Reading, simulate 1 session
-    if (index === 1) {
-      habit.streak = 1;
-      habit.longestStreak = 1;
-      habit.sessions = 1;
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      habit.lastCompleted = yesterday;
-    }
-    
-    // For Meditation, no sessions yet
-  });
-  
-  saveHabits();
-  
-  // Add first habit achievement if the function exists
-  if (typeof addAchievement === 'function') {
-    addAchievement('First habits created! Your journey begins!', 'milestone');
-  }
-}
-
-// Event Listeners
-if (habitElements.form) {
-  habitElements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const habitName = habitElements.input.value.trim();
-    
-    if (habitName) {
-      const habit = createHabit(habitName);
-      habits.push(habit);
-      saveHabits();
-      renderHabits();
-      habitElements.input.value = '';
-      
-      // First habit achievement
-      if (habits.length === 1) {
-        addAchievement('First habit created! Your journey begins!', 'milestone');
-      }
-    }
-  });
-}
-
-// Event delegation for habit list buttons (using revised layout)
-if (habitElements.list) {
-  habitElements.list.addEventListener('click', (e) => {
-    if (e.target.classList.contains('log-btn')) {
-      const index = parseInt(e.target.dataset.index, 10);
-      incrementHabit(index);
-    } else if (e.target.classList.contains('edit-btn')) {
-      const index = parseInt(e.target.dataset.index, 10);
-      showEditModal(index);
-    }
-  });
-}
-
-// Edit form submission
-if (habitElements.editForm) {
-  habitElements.editForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const index = parseInt(habitElements.editIndexInput.value, 10);
-    const newName = habitElements.editNameInput.value.trim();
-    
-    if (newName && index >= 0 && index < habits.length) {
-      habits[index].name = newName;
-      saveHabits();
-      renderHabits();
-      closeEditModal();
-    }
-  });
-}
-
-// Delete button
-if (habitElements.deleteButton) {
-  habitElements.deleteButton.addEventListener('click', () => {
-    const index = parseInt(habitElements.editIndexInput.value, 10);
-    deleteHabit(index);
-  });
-}
-
-// Close button and click outside modal
-if (habitElements.closeButton) {
-  habitElements.closeButton.addEventListener('click', closeEditModal);
-  window.addEventListener('click', (e) => {
-    if (e.target === habitElements.editModal) {
-      closeEditModal();
-    }
-  });
-}
+    confetti.forEach(piece => {
