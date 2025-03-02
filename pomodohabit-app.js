@@ -31,6 +31,13 @@ function initializeApp() {
   // Set up view more button for achievements
   setupAchievementsViewMore();
   
+  // Ensure habit dropdown is updated
+  updateHabitDropdown();
+  
+  // Make sure to render habits and achievements on initial load
+  renderHabits();
+  renderAchievements();
+  
   console.log('PomodoHabit initialized successfully!');
 }
 
@@ -40,6 +47,13 @@ function initializeApp() {
 function setupTabNavigation() {
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
+  
+  // Fix tab mapping
+  const tabMap = {
+    'timer': 'timer-section',
+    'habits': 'habit-section',
+    'achievements': 'gamification-section'
+  };
   
   // Load the active tab from localStorage or default to timer
   const savedTab = localStorage.getItem('activeTab') || 'timer';
@@ -68,9 +82,9 @@ function setupTabNavigation() {
       }
     });
     
-    // Update tab content
+    // Update tab content using the corrected mapping
     tabContents.forEach(content => {
-      if (content.id === `${tabName}-section`) {
+      if (content.id === tabMap[tabName]) {
         content.classList.add('active');
       } else {
         content.classList.remove('active');
@@ -174,6 +188,33 @@ function checkHabitReminders() {
 }
 
 /**
+ * Adds sample habits for demo purposes
+ */
+function addSampleHabits() {
+  // Only add samples if no habits exist
+  if (!habits || habits.length === 0) {
+    habits = [
+      createHabit('Exercise'),
+      createHabit('Reading'),
+      createHabit('Meditation')
+    ];
+    
+    // Add a sample achievement for each
+    addAchievement('Started tracking Exercise!', 'milestone');
+    addAchievement('Created Reading habit!', 'milestone');
+    addAchievement('Added Meditation to your routine!', 'milestone');
+    
+    // Save the created habits
+    saveHabits();
+    
+    // Add points for getting started
+    if (typeof addPoints === 'function') {
+      addPoints(50);
+    }
+  }
+}
+
+/**
  * Clears all application data (for testing/debugging)
  */
 function clearAllData() {
@@ -185,6 +226,15 @@ function clearAllData() {
     
     // Reload the page to reset the app
     window.location.reload();
+  }
+}
+
+/**
+ * Helper function to trigger confetti if available
+ */
+function triggerConfetti() {
+  if (typeof window.triggerConfetti === 'function') {
+    window.triggerConfetti();
   }
 }
 
