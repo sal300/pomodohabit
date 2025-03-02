@@ -11,19 +11,35 @@
     <header>
       <h1>PomodoHabit</h1>
       <p>Pomodoro Timer + Habit Tracker</p>
+      
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="timer">Timer</button>
+        <button class="tab-btn" data-tab="habits">Habits</button>
+        <button class="tab-btn" data-tab="achievements">Achievements</button>
+      </div>
     </header>
 
     <main>
       <!-- Timer Section -->
-      <section id="timer-section">
+      <section id="timer-section" class="tab-content active">
         <h2>Pomodoro Timer</h2>
-        <div class="session-type" id="session-type">Work Session</div>
-        <div id="timer-display">25:00</div>
-        <div class="timer-controls">
-          <button id="start-btn">Start</button>
-          <button id="pause-btn">Pause</button>
-          <button id="reset-btn">Reset</button>
+        
+        <div class="timer-container">
+          <div class="session-type" id="session-type">Work Session</div>
+          <div id="timer-display">25:00</div>
+          
+          <div class="timer-controls">
+            <button id="start-btn">Start</button>
+            <button id="pause-btn">Pause</button>
+            <button id="reset-btn">Reset</button>
+          </div>
         </div>
+        
+        <div class="settings-divider">
+          <span>Timer Settings</span>
+        </div>
+        
         <div class="customize-timer">
           <label>
             Work Duration (min):
@@ -33,39 +49,59 @@
             Break Duration (min):
             <input type="number" id="break-duration" value="5" min="1" />
           </label>
-          <button id="set-timer-btn">Set Timer</button>
+          <button id="set-timer-btn">Apply Settings</button>
+        </div>
+        
+        <!-- Track with Timer (moved from habit section for better integration) -->
+        <div class="track-with-timer">
+          <h3>Track Habit with Timer</h3>
+          <div class="habit-selection">
+            <select id="habit-select">
+              <option value="">-- Select Habit --</option>
+            </select>
+            <p class="helper-text">When a work session completes, this habit will be logged automatically</p>
+          </div>
         </div>
       </section>
 
       <!-- Habit Tracker Section -->
-      <section id="habit-section">
+      <section id="habit-section" class="tab-content">
         <h2>Habit Tracker</h2>
-        <form id="habit-form">
-          <input type="text" id="habit-input" placeholder="Enter habit (e.g., Exercise)" required />
-          <button type="submit">Add Habit</button>
-        </form>
-        <div id="active-habit">
-          <label for="habit-select">Track with Timer:</label>
-          <select id="habit-select">
-            <option value="">-- Select Habit --</option>
-          </select>
+        
+        <div class="habit-actions-container">
+          <form id="habit-form">
+            <input type="text" id="habit-input" placeholder="Enter habit (e.g., Exercise)" required />
+            <button type="submit">Add Habit</button>
+          </form>
         </div>
-        <ul id="habit-list">
-          <!-- Habit items will be dynamically inserted here -->
-        </ul>
+        
+        <div class="habits-container">
+          <h3>Your Habits</h3>
+          <div class="habits-grid" id="habit-list">
+            <!-- Habit items will be dynamically inserted here as cards -->
+          </div>
+        </div>
       </section>
 
       <!-- Gamification / Achievements Section -->
-      <section id="gamification-section">
+      <section id="gamification-section" class="tab-content">
         <h2>Achievements & Rewards</h2>
-        <div id="points">Points: 0</div>
-        <div id="level">Level: 1</div>
-        <div class="progress-container">
-          <div id="progress-bar" class="progress-bar"></div>
+        
+        <div class="stats-container">
+          <div id="points">Points: 0</div>
+          <div id="level">Level: 1</div>
+          <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+          </div>
         </div>
-        <ul id="achievements-list">
-          <!-- Achievements will be dynamically inserted here -->
-        </ul>
+        
+        <div class="achievements-container">
+          <h3>Recent Achievements <span id="achievements-count">(0)</span></h3>
+          <ul id="achievements-list" class="achievements-list collapsed">
+            <!-- Achievements will be dynamically inserted here -->
+          </ul>
+          <button id="view-more-btn" class="view-more-btn">View More</button>
+        </div>
       </section>
     </main>
 
@@ -90,6 +126,11 @@
 
     <!-- Confetti canvas for celebrations -->
     <canvas id="confetti-canvas"></canvas>
+    
+    <!-- Footer with copyright -->
+    <footer class="app-footer">
+      <p>&copy; 2025 PomodoHabit | Created by Saher M.</p>
+    </footer>
   </div>
 
   <!-- Link to external JavaScript files -->
@@ -97,9 +138,5 @@
   <script src="pomodohabit-habits.js"></script>
   <script src="pomodohabit-gamification.js"></script>
   <script src="pomodohabit-app.js"></script>
-  <!-- Footer with copyright -->
-<footer class="app-footer">
-  <p>&copy; 2025 PomodoHabit | Created by Saher M.</p>
-</footer>
 </body>
 </html>
