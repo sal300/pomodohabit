@@ -366,9 +366,16 @@ function refreshActiveTabContent(tabName) {
  */
 function setupEventListeners() {
   console.log('Setting up event listeners');
-  
+
   // View more button for achievements
-  if (window.gamificationElements.viewMoreBtn.textContent = 'View Less';
+  if (window.gamificationElements.viewMoreBtn && window.gamificationElements.achievementsList) {
+    window.gamificationElements.viewMoreBtn.addEventListener('click', () => {
+      window.gamificationElements.achievementsList.classList.toggle('collapsed');
+
+      if (window.gamificationElements.achievementsList.classList.contains('collapsed')) {
+        window.gamificationElements.viewMoreBtn.textContent = 'View More';
+      } else {
+        window.gamificationElements.viewMoreBtn.textContent = 'View Less';
       }
     });
   }
@@ -385,7 +392,11 @@ function setupEventListeners() {
         window.saveHabits();
         window.renderHabits();
         window.habitElements.input.value = '';
-        
+
+        if (typeof window.updateHabitDropdown === 'function') {
+          window.updateHabitDropdown();
+        }
+
         // First habit achievement
         if (window.habits.length === 1 && typeof window.addAchievement === 'function') {
           window.addAchievement('First habit created! Your journey begins!', 'milestone');
@@ -554,11 +565,4 @@ window.clearAllData = function() {
 // Expose functions globally
 window.PomodoHabit.initializeComponents = initializeComponents;
 window.PomodoHabit.refreshActiveTabContent = refreshActiveTabContent;
-window.PomodoHabit.initializeDOMReferences = initializeDOMReferences;Btn && window.gamificationElements.achievementsList) {
-    window.gamificationElements.viewMoreBtn.addEventListener('click', () => {
-      window.gamificationElements.achievementsList.classList.toggle('collapsed');
-      
-      if (window.gamificationElements.achievementsList.classList.contains('collapsed')) {
-        window.gamificationElements.viewMoreBtn.textContent = 'View More';
-      } else {
-        window.gamificationElements.viewMore
+window.PomodoHabit.initializeDOMReferences = initializeDOMReferences;
