@@ -3,14 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#e74c3c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>PomodoHabit: Pomodoro Timer + Habit Tracker</title>
   <link rel="stylesheet" href="pomodohabit-css.css">
+  <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/ak+0ukAAAAASUVORK5CYII=">
+    <link rel="apple-touch-icon" sizes="192x192" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/ak+0ukAAAAASUVORK5CYII=">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx" crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="app">
     <header>
       <h1>PomodoHabit</h1>
       <p>Pomodoro Timer + Habit Tracker</p>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
       
       <!-- Tab Navigation -->
       <div class="tab-navigation">
@@ -20,6 +28,19 @@
       </div>
     </header>
 
+    <div id="ad-container" class="ad-container">
+      <!-- Replace data-ad-client and data-ad-slot with your own AdSense IDs -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+           data-ad-slot="1234567890"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
     <main>
       <!-- Timer Section -->
       <section id="timer-section" class="tab-content active">
@@ -28,12 +49,6 @@
         <div class="timer-container">
           <div class="session-type" id="session-type">Work Session</div>
           <div id="timer-display">25:00</div>
-          
-          <div class="timer-controls">
-            <button id="start-btn">Start</button>
-            <button id="pause-btn">Pause</button>
-            <button id="reset-btn">Reset</button>
-          </div>
         </div>
         
         <div class="settings-divider">
@@ -48,6 +63,17 @@
           <label>
             Break Duration (min):
             <input type="number" id="break-duration" value="5" min="1" />
+          </label>
+          <label>
+            Long Break (min):
+            <input type="number" id="long-break-duration" value="15" min="1" />
+          </label>
+          <label>
+            Sessions per Cycle:
+            <input type="number" id="sessions-per-cycle" value="4" min="1" />
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="notifications-toggle" checked /> Enable Notifications
           </label>
           <button id="set-timer-btn">Apply Settings</button>
         </div>
@@ -133,11 +159,24 @@
     </footer>
   </div>
 
+  <div id="bottom-controls" class="bottom-controls">
+    <button id="start-btn">Start</button>
+    <button id="pause-btn">Pause</button>
+    <button id="reset-btn">Reset</button>
+  </div>
+
   <!-- Link to external JavaScript files -->
   <script src="pomodohabit-init.js"></script>
   <script src="pomodohabit-timer.js"></script>
   <script src="pomodohabit-habits.js"></script>
   <script src="pomodohabit-gamification.js"></script>
   <script src="pomodohabit-app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+  </script>
 </body>
 </html>

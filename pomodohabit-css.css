@@ -31,6 +31,7 @@ body {
   background: var(--light-color);
   color: var(--dark-color);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* Layout */
@@ -38,18 +39,77 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  padding-bottom: 80px; /* space for bottom controls */
 }
 
 header {
   text-align: center;
   margin-bottom: 30px;
   animation: fadeIn 1s ease;
+  position: relative;
 }
 
 header h1 {
   margin: 0;
   color: var(--primary-color);
   font-size: 2.5rem;
+}
+
+.ad-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Sticky bottom controls */
+.bottom-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background: var(--light-color);
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.bottom-controls button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 15px 0;
+  font-size: 1.1rem;
+  min-height: 48px;
+}
+
+/* Dark mode override */
+body.dark-mode {
+  background: #121212;
+  color: #f5f5f5;
+}
+
+body.dark-mode main section {
+  background: #1e1e1e;
+  color: #f5f5f5;
+}
+
+body.dark-mode .bottom-controls {
+  background: #1e1e1e;
+}
+
+body.dark-mode .app-footer {
+  color: #f5f5f5;
 }
 
 main section {
@@ -128,6 +188,8 @@ button {
   border-radius: 4px;
   transition: var(--transition);
   font-weight: 600;
+  min-height: 44px;
+  padding: 10px 20px;
 }
 
 button:hover {
@@ -187,30 +249,19 @@ input:focus, select:focus {
   color: var(--success-color);
 }
 
-.timer-controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 10px 0;
-}
-
-.timer-controls button {
-  padding: 12px 24px;
-  font-size: 1rem;
-  color: white;
-  min-width: 100px;
-}
-
 #start-btn {
   background-color: var(--success-color);
+  color: #fff;
 }
 
 #pause-btn {
   background-color: var(--warning-color);
+  color: #fff;
 }
 
 #reset-btn {
   background-color: var(--secondary-color);
+  color: #fff;
 }
 
 /* Settings divider for visual separation */
@@ -636,14 +687,8 @@ input:focus, select:focus {
     font-size: 3rem;
   }
   
-  .timer-controls {
-    flex-wrap: wrap;
-  }
-  
-  .timer-controls button {
-    padding: 10px 15px; /* Smaller buttons on mobile */
-    min-width: auto;
-    flex: 1;
+  .bottom-controls button {
+    font-size: 1rem;
   }
   
   .customize-timer {

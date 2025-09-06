@@ -6,6 +6,9 @@
 const TimerState = {
   workDuration: 25, // default work duration in minutes
   breakDuration: 5, // default break duration in minutes
+  longBreakDuration: 15,
+  sessionsPerCycle: 4,
+  notificationsEnabled: true,
   timeRemaining: 25 * 60, // in seconds
   isRunning: false,
   isWorkSession: true,
@@ -24,6 +27,9 @@ const timerElements = {
   setTimerBtn: document.getElementById('set-timer-btn'),
   workDurationInput: document.getElementById('work-duration'),
   breakDurationInput: document.getElementById('break-duration'),
+  longBreakInput: document.getElementById('long-break-duration'),
+  sessionsPerCycleInput: document.getElementById('sessions-per-cycle'),
+  notificationToggle: document.getElementById('notifications-toggle'),
   habitSelect: document.getElementById('habit-select')
 };
 
@@ -61,29 +67,33 @@ function startTimer() {
       } else {
         clearInterval(TimerState.interval);
         playNotificationSound();
-        
+
         // Handle session completion
         if (TimerState.isWorkSession) {
           TimerState.completedSessions++;
-          
+
           // Award points and log for active habit
           addPoints(10);
-          
+
           // Log for the currently active habit if selected
           if (TimerState.activeHabitId !== null) {
             incrementHabit(TimerState.activeHabitId);
           }
-          
+
+          showNotification('Work session complete! Time for a break.');
+
           // Save to localStorage
           saveTimerState();
+        } else {
+          showNotification('Break over! Back to work.');
         }
-        
+
         // Switch between work and break sessions
         TimerState.isWorkSession = !TimerState.isWorkSession;
         setTimerForSession();
         TimerState.isRunning = false;
         timerElements.startBtn.textContent = 'Start';
-        
+
         // Automatically start the next session
         startTimer();
       }
@@ -117,11 +127,15 @@ function resetTimer() {
  */
 function setTimerForSession() {
   if (TimerState.isWorkSession) {
-    TimerState.timeRemaining = Math.max(1, parseInt(timerElements.workDurationInput.value, 10)) * 60;
     TimerState.workDuration = Math.max(1, parseInt(timerElements.workDurationInput.value, 10));
+    TimerState.timeRemaining = TimerState.workDuration * 60;
   } else {
-    TimerState.timeRemaining = Math.max(1, parseInt(timerElements.breakDurationInput.value, 10)) * 60;
     TimerState.breakDuration = Math.max(1, parseInt(timerElements.breakDurationInput.value, 10));
+    TimerState.longBreakDuration = Math.max(1, parseInt(timerElements.longBreakInput.value, 10));
+    const breakLength = (TimerState.completedSessions % TimerState.sessionsPerCycle === 0)
+      ? TimerState.longBreakDuration
+      : TimerState.breakDuration;
+    TimerState.timeRemaining = breakLength * 60;
   }
   updateTimerDisplay();
   saveTimerState();
@@ -131,11 +145,27 @@ function setTimerForSession() {
  * Plays a notification sound when timer completes
  */
 function playNotificationSound() {
+  if (!TimerState.notificationsEnabled) return;
   try {
-    const audio = new Audio('https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js');
-    audio.play().catch(e => console.warn('Audio play failed:', e));
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 880;
+    gain.gain.value = 0.1;
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.5);
   } catch (error) {
     console.warn('Could not play notification sound:', error);
+  }
+}
+
+function showNotification(message) {
+  if (!TimerState.notificationsEnabled) return;
+  if (Notification.permission === 'granted') {
+    new Notification(message);
   }
 }
 
@@ -169,6 +199,9 @@ function saveTimerState() {
   const state = {
     workDuration: TimerState.workDuration,
     breakDuration: TimerState.breakDuration,
+    longBreakDuration: TimerState.longBreakDuration,
+    sessionsPerCycle: TimerState.sessionsPerCycle,
+    notificationsEnabled: TimerState.notificationsEnabled,
     isWorkSession: TimerState.isWorkSession,
     completedSessions: TimerState.completedSessions,
     activeHabitId: TimerState.activeHabitId
@@ -185,19 +218,29 @@ function loadTimerState() {
     if (savedState) {
       TimerState.workDuration = savedState.workDuration || 25;
       TimerState.breakDuration = savedState.breakDuration || 5;
+      TimerState.longBreakDuration = savedState.longBreakDuration || 15;
+      TimerState.sessionsPerCycle = savedState.sessionsPerCycle || 4;
+      TimerState.notificationsEnabled = savedState.notificationsEnabled !== false;
       TimerState.isWorkSession = savedState.isWorkSession;
       TimerState.completedSessions = savedState.completedSessions || 0;
       TimerState.activeHabitId = savedState.activeHabitId;
-      
+
       // Update input fields with saved values
       timerElements.workDurationInput.value = TimerState.workDuration;
       timerElements.breakDurationInput.value = TimerState.breakDuration;
-      
+      timerElements.longBreakInput.value = TimerState.longBreakDuration;
+      timerElements.sessionsPerCycleInput.value = TimerState.sessionsPerCycle;
+      timerElements.notificationToggle.checked = TimerState.notificationsEnabled;
+
       // Set the timer based on current session type
       setTimerForSession();
     }
   } catch (error) {
     console.warn('Error loading timer state:', error);
+  }
+
+  if (TimerState.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+    Notification.requestPermission();
   }
 }
 
@@ -210,6 +253,9 @@ timerElements.setTimerBtn.addEventListener('click', () => {
   TimerState.isWorkSession = true; // Reset to work session
   TimerState.workDuration = Math.max(1, parseInt(timerElements.workDurationInput.value, 10));
   TimerState.breakDuration = Math.max(1, parseInt(timerElements.breakDurationInput.value, 10));
+  TimerState.longBreakDuration = Math.max(1, parseInt(timerElements.longBreakInput.value, 10));
+  TimerState.sessionsPerCycle = Math.max(1, parseInt(timerElements.sessionsPerCycleInput.value, 10));
+  TimerState.notificationsEnabled = timerElements.notificationToggle.checked;
   setTimerForSession();
 });
 
@@ -219,3 +265,13 @@ timerElements.habitSelect.addEventListener('change', (e) => {
   TimerState.activeHabitId = selectedIndex === '' ? null : parseInt(selectedIndex, 10);
   saveTimerState();
 });
+
+if (timerElements.notificationToggle) {
+  timerElements.notificationToggle.addEventListener('change', (e) => {
+    TimerState.notificationsEnabled = e.target.checked;
+    if (TimerState.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+    saveTimerState();
+  });
+}

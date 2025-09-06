@@ -33,7 +33,10 @@ function initializeApp() {
   
   // Ensure habit dropdown is updated
   updateHabitDropdown();
-  
+
+  // Set up theme toggle
+  setupThemeToggle();
+
   // Make sure to render habits and achievements on initial load
   renderHabits();
   renderAchievements();
@@ -165,6 +168,27 @@ function setupServiceWorker() {
       // and register it here for offline capabilities
     });
   }
+}
+
+/**
+ * Sets up the light/dark theme toggle
+ */
+function setupThemeToggle() {
+  const toggle = document.getElementById('theme-toggle');
+  if (!toggle) return;
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    toggle.textContent = '☀️';
+  }
+
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    toggle.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
 }
 
 /**
