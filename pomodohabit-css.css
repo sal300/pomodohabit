@@ -94,7 +94,7 @@ header h1 {
   min-height: 48px;
 }
 
-/* Dark mode override */
+/* Dark mode overrides */
 body.dark-mode {
   background: #121212;
   color: #f5f5f5;
